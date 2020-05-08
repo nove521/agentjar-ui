@@ -24,7 +24,11 @@ public class MyCompiler {
     private final Collection<JavaFileObject> inputJavaFileObjects = new ArrayList<>();
 
     public MyCompiler(ClassLoader classLoader) {
-        this.classLoader = classLoader;
+        if (Objects.isNull(classLoader)) {
+            this.classLoader = this.getClass().getClassLoader();
+        } else {
+            this.classLoader = classLoader;
+        }
         options.add("-Xlint:unchecked"); // 取消编译警告
     }
 
@@ -36,8 +40,9 @@ public class MyCompiler {
      * @return 编译好的class字节码
      */
     public byte[] start(String name, String javaString) {
-        addInputJavaFileObject(name,javaString);
-        return start().get(name);
+        addInputJavaFileObject(name, javaString);
+        Map<String, byte[]> byteMap = start();
+        return byteMap == null ? new byte[0] : byteMap.get(name);
     }
 
     /**
@@ -60,7 +65,7 @@ public class MyCompiler {
                 inputJavaFileObjects);
 
         Boolean result = task.call();
-        if (result){
+        if (result) {
             return myJavaFileManage.getOutClassSource();
         }
         return null;
@@ -76,12 +81,12 @@ public class MyCompiler {
         throw new UnsupportedOperationException(SystemMessage.UN_OPERATION.getVal());
     }
 
-    public void addInputJavaFileObject(String name, String javaString){
+    public void addInputJavaFileObject(String name, String javaString) {
         JavaSourceFromString sourceFromString = new JavaSourceFromString(name, javaString);
         addInputJavaFileObject(sourceFromString);
     }
 
-    public void addInputJavaFileObject(JavaFileObject javaFileObject){
+    public void addInputJavaFileObject(JavaFileObject javaFileObject) {
         inputJavaFileObjects.add(javaFileObject);
     }
 }

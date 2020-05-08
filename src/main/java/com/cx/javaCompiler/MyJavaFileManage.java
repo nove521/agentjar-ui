@@ -1,7 +1,5 @@
 package com.cx.javaCompiler;
 
-import com.cx.javaCompiler2.ClassByteSource;
-
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaFileManager;
@@ -21,7 +19,7 @@ public class MyJavaFileManage extends ForwardingJavaFileManager {
     // 存放 编译好的class文件字节码
     private Map<String, ClassByteSource> classByteSourceMap;
 
-    protected MyJavaFileManage(JavaFileManager fileManager) {
+    public MyJavaFileManage(JavaFileManager fileManager) {
         super(fileManager);
         classByteSourceMap = new HashMap<>();
     }

@@ -1,10 +1,13 @@
 package com.cx.javaCompiler2;
 
+import com.cx.javaCompiler.JavaSourceFromString;
+import com.cx.javaCompiler.MyJavaFileManage;
 import com.cx.utils.IoUtils;
 
 import javax.tools.*;
-import java.io.*;
-import java.nio.file.Files;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -37,7 +40,7 @@ public class Demo {
         // 文件管理器 + 文件列表
         compiler.getTask(null, myJavaFileManage, diagnostics, null, null, collection).call();
 
-        byte[] result = myJavaFileManage.getOutJavaFile().getByteSource();
+        byte[] result = myJavaFileManage.getOutClassSource().get("");
         FileOutputStream fileOutputStream = new FileOutputStream(new File("C:/Users/59780/Desktop/Test.class"));
         fileOutputStream.write(result);
 

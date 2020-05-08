@@ -18,6 +18,10 @@ public class IoUtils {
         String result = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
         outputStream.close();
         inputStream.close();
+
+        result = result.replace("\r","");
+        result = result.replace("\u0000","");
+
         return result;
     }
 }

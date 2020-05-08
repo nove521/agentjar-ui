@@ -22,9 +22,9 @@ public class A66 {
 //        MyFileObject simpleJavaFileObject = new MyFileObject(className);
 //        byte[] b = simpleJavaFileObject.getByteCode();
 //        System.out.println(b.length);
-        DynamicCompiler dynamicCompiler = new DynamicCompiler();
-        byte[]b = dynamicCompiler.getClassByte(className);
-        System.out.println(b.length);
+//        DynamicCompiler dynamicCompiler = new DynamicCompiler();
+//        byte[]b = dynamicCompiler.getClassByte(className);
+//        System.out.println(b.length);
     }
  
 }
