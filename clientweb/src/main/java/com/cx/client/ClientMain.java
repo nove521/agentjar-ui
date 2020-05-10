@@ -1,6 +1,5 @@
 package com.cx.client;
 
-import com.cx.utils.SOAServer;
 import org.yx.main.SumkServer;
 
 import java.io.IOException;

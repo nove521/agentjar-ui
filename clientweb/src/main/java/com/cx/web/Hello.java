@@ -20,6 +20,18 @@ public class Hello {
     }
 
     @Web
+    public String ttttt(){
+        String ddd = Rpc.call("a.ishaveIns");
+        return ddd;
+    }
+
+    @Web
+    public String info(){
+        String ddd = Rpc.call("a.getInfo");
+        return ddd;
+    }
+
+    @Web
     public String stop(){
         Rpc.callAsync("a.stop.sumk");
         return "ok";

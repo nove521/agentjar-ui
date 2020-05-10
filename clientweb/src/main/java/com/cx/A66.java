@@ -2,7 +2,9 @@ package com.cx;
 
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
+import org.yx.util.S;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -19,12 +21,10 @@ public class A66 {
 
         // 这个是我准备替换的class文件
         String classPath = "D:/project/simple/target/classes/com/example/simple/controller/HelloController.class";
-//        virtualMachine.loadAgent("D:/project/学习/TestHotUpdate/agentjar/target/agentjar-1.0.jar ", classPath);
-        virtualMachine.loadAgent("D:/project/学习/TestHotUpdate/ttttttt/target/ttttttt-1.0.jar ", classPath);
+        virtualMachine.loadAgent("D:/project/学习/TestHotUpdate/agentjar/target/agentjar-1.0.jar ", S.json.toJson(Collections.emptyList()));
+//        virtualMachine.loadAgent("D:/project/学习/TestHotUpdate/ttttttt/target/ttttttt-1.0.jar ", classPath);
         System.out.println("ok");
 
-        System.in.read();
-        System.in.read();
         virtualMachine.detach();
 
 

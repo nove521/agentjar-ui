@@ -1,6 +1,7 @@
 package com.cx.agent;
 
 import org.yx.main.SumkServer;
+import org.yx.util.S;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -8,6 +9,8 @@ import java.io.IOException;
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.lang.reflect.Type;
+import java.util.Collection;
 import java.util.Collections;
 
 public class LoadedAgent {
@@ -39,12 +42,14 @@ public class LoadedAgent {
         }
 
         try {
-            SumkServer.start(Collections.singletonList("nohttp"));
+            Session.setIns(inst);
+            Collection<String> options = S.json.fromJson(agentArgs,(Type)Collection.class);
+            options.add("nohttp");
+            SumkServer.start(Collections.unmodifiableCollection(options));
         }catch (Error e){
             e.printStackTrace();
         }
 
-        System.out.println("退出 agentjar");
     }
 
     private static byte[] readFileToByte(String path) throws IOException {

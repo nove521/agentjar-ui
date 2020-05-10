@@ -11,11 +11,11 @@ public class MyCompilerTest {
     @Test
     public void start() throws IOException {
 
-        File file = new File("C:/Users/59780/Desktop/by/Test.java");
+        File file = new File("D:/project/学习/TestHotUpdate/agentjar/src/main/java/com/cx/test/SimpleClass.java");
         String srouce = IoUtils.inputStreamToString(file);
 
         MyCompiler myCompiler = new MyCompiler(null);
-        byte [] result = myCompiler.start("com.cx.Test", srouce);
+        byte [] result = myCompiler.start("com.cx.test.SimpleClass", srouce);
         System.out.println(result.length);
     }
 }

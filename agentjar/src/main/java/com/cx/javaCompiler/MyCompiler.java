@@ -57,7 +57,7 @@ public class MyCompiler {
         // 保存编译异常的信息
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         JavaFileManager javaFileManager = javaCompiler.getStandardFileManager(diagnostics, null, null);
-        MyJavaFileManage myJavaFileManage = new MyJavaFileManage(javaFileManager);
+        MyJavaFileManage myJavaFileManage = new MyJavaFileManage(javaFileManager,classLoader);
 
         JavaCompiler.CompilationTask task = javaCompiler.getTask(
                 null,
