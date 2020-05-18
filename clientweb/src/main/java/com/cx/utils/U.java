@@ -11,4 +11,11 @@ public class U {
         return t;
     }
 
+    public static String s(Object t, Object defaults){
+        if (Objects.isNull(t)){
+            return String.valueOf(defaults);
+        }
+        return String.valueOf(t);
+    }
+
 }

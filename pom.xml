@@ -10,6 +10,7 @@
     <modules>
         <module>agentjar</module>
         <module>clientweb</module>
+        <module>client-ui</module>
     </modules>
     <packaging>pom</packaging>
 

@@ -20,12 +20,12 @@ public class MyJavaFileManage extends ForwardingJavaFileManager {
     // 存放 编译好的class文件字节码
     private final Map<String, ClassByteSource> classByteSourceMap = new HashMap<>();
     // 用于从指定classLoad路径中查找类
-    private ClassLoader classLoader;
+    private final MyClassLoad classLoader;
     private FindClassLoadPackage find;
 
-    public MyJavaFileManage(JavaFileManager fileManager,ClassLoader classLoader) {
+    public MyJavaFileManage(JavaFileManager fileManager, ClassLoader classLoader) {
         super(fileManager);
-        this.classLoader = classLoader;
+        this.classLoader = new MyClassLoad(classLoader,classByteSourceMap);
         this.find = new FindClassLoadPackage(classLoader);
     }
 
@@ -38,16 +38,13 @@ public class MyJavaFileManage extends ForwardingJavaFileManager {
     }
 
     @Override
-    public ClassLoader getClassLoader(Location location){
+    public ClassLoader getClassLoader(Location location) {
         return this.classLoader;
     }
 
     @Override
     public Iterable<JavaFileObject> list(Location location, String packageName, Set kinds, boolean recurse) throws IOException {
-
-        System.out.println(location.getName());
-        Iterable list = super.list(location, packageName, kinds, recurse);
-        return list;
+        return super.list(location, packageName, kinds, recurse);
     }
 
     public Map<String, ClassByteSource> getOutJavaFiles() {

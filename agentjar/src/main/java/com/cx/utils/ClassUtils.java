@@ -1,6 +1,14 @@
 package com.cx.utils;
 
+import com.cx.agent.Session;
+
+import java.io.*;
 import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.List;
+import java.util.Objects;
 
 public class ClassUtils {
 
@@ -100,4 +108,64 @@ public class ClassUtils {
             return clazz.getName();
         }
     }
+
+    public static ClassLoader generateClassLoad(Class<?> clazz) {
+        URL url = clazz.getProtectionDomain().getCodeSource().getLocation();
+        return new URLClassLoader(new URL[]{url}, clazz.getClassLoader().getParent());
+    }
+
+    /**
+     * 获取class类文件路径 如果是jar包则直接返回
+     *
+     * @param classes
+     * @param className
+     * @return
+     */
+    public static String getPathByClassName(List<Class<?>> classes, String className) {
+        Class<?> objClazz = null;
+        for (Class<?> clazz : classes) {
+            if (clazz.getName().equals(className)) {
+                objClazz = clazz;
+                break;
+            }
+        }
+
+        if (Objects.isNull(objClazz)) {
+            return null;
+        }
+
+        className = className.replace(".", "/");
+        URL resource = objClazz.getClassLoader().getResource(className + ".class");
+
+        if (Objects.isNull(resource)) {
+            return null;
+        }
+
+        if (resource.toString().indexOf(".jar") > 0) {
+            return className;
+        }
+
+        try {
+            return new File(resource.toURI()).getAbsolutePath();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static byte[] getByteByClass(Class<?> clazz) {
+        InputStream stream = clazz.getClassLoader().getResourceAsStream(clazz.getName().replace(".", "/") + ".class");
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream("C:/Users/59780/Desktop/by/xx/111/cccc.class");
+            IoUtils.inputStreamToOutputStream(stream, fileOutputStream);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        getByteByClass(ClassUtils.class);
+    }
 }
+

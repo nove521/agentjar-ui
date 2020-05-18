@@ -1,12 +1,12 @@
 package com.cx.javaCompiler;
 
 import com.cx.enums.SystemMessage;
+import com.cx.utils.ClassUtils;
 
 import javax.tools.*;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
 
 /**
  * 动态编译主入口
@@ -25,10 +25,12 @@ public class MyCompiler {
     private final Collection<String> options = new ArrayList<>();
     // 输入的java对象文件 集合
     private final Collection<JavaFileObject> inputJavaFileObjects = new ArrayList<>();
+    // 我的文件管理系统
+    private MyJavaFileManage myJavaFileManage;
 
     public MyCompiler(ClassLoader classLoader) {
         if (Objects.isNull(classLoader)) {
-            this.classLoader = this.getClass().getClassLoader();
+            this.classLoader = ClassUtils.generateClassLoad(this.getClass());
         } else {
             this.classLoader = classLoader;
         }
@@ -40,12 +42,12 @@ public class MyCompiler {
      *
      * @param name       类名包含路径
      * @param javaString java源代码
-     * @return 编译好的class字节码
+     * @return 编译好的class字节码 ,之所以是map，是因为 可能存在内部类，内部类，会单独建一个class
      */
-    public byte[] start(String name, String javaString) {
+    public Map<String, byte[]> start(String name, String javaString) {
         addInputJavaFileObject(name, javaString);
         Map<String, byte[]> byteMap = start();
-        return byteMap == null ? new byte[0] : byteMap.get(name);
+        return byteMap == null ? Collections.emptyMap() : byteMap;
     }
 
     /**
@@ -57,8 +59,8 @@ public class MyCompiler {
         // 保存编译异常的信息
         DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<>();
         JavaFileManager javaFileManager = javaCompiler.getStandardFileManager(diagnostics, null, null);
-        MyJavaFileManage myJavaFileManage = new MyJavaFileManage(javaFileManager,classLoader);
-
+        MyJavaFileManage myJavaFileManage = new MyJavaFileManage(javaFileManager, classLoader);
+        this.myJavaFileManage = myJavaFileManage;
         JavaCompiler.CompilationTask task = javaCompiler.getTask(
                 null,
                 myJavaFileManage,
@@ -70,7 +72,7 @@ public class MyCompiler {
         Boolean result = task.call();
         if (result) {
             return myJavaFileManage.getOutClassSource();
-        }else {
+        } else {
             MyExceptionReporter reporter = new MyExceptionReporter(diagnostics.getDiagnostics());
             System.out.println(reporter.toReporter());
         }
@@ -95,4 +97,5 @@ public class MyCompiler {
     public void addInputJavaFileObject(JavaFileObject javaFileObject) {
         inputJavaFileObjects.add(javaFileObject);
     }
+
 }

@@ -8,7 +8,9 @@ import java.util.*;
 public class Session {
 
     private static Instrumentation ins;
-    public final static List<Class<?>> allClassCache = new ArrayList<>();
+
+    // 保留热更新前 原始的类文件
+    private static final Map<Class<?>,byte[]> cacheClassByte = new HashMap<>();
 
     public static void setIns(Instrumentation ins) {
         Session.ins = ins;
@@ -37,12 +39,8 @@ public class Session {
     }
 
     public static List<Class<?>> getClassCache() {
-        if (allClassCache.isEmpty()) {
-            Class<?>[] allLoadedClasses = ins.getAllLoadedClasses();
-            List<Class<?>> classes = Arrays.asList(allLoadedClasses);
-            allClassCache.addAll(classes);
-        }
-        return allClassCache;
+        Class<?>[] allLoadedClasses = ins.getAllLoadedClasses();
+        return Arrays.asList(allLoadedClasses);
     }
 
     public static Class<?> getClassCache(String className) {
@@ -50,8 +48,16 @@ public class Session {
         return classOptional.orElse(null);
     }
 
-    public static void updateCache(){
-        allClassCache.clear();
+    public static void updateCache() {
         getClassCache();
     }
+
+    public static Map<Class<?>,byte[]> getCacheClassByte(){
+        return Session.cacheClassByte;
+    }
+
+    public static void clearCacheClassByte(){
+        Session.cacheClassByte.clear();
+    }
+
 }

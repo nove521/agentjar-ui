@@ -31,7 +31,7 @@ public class Hello {
         return ddd;
     }
 
-    @Web
+//    @Web
     public String stop(){
         Rpc.callAsync("a.stop.sumk");
         return "ok";
