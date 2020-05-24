@@ -1,5 +1,6 @@
 package com.cx.server.soa;
 
+import com.cx.mode.MethodInfo;
 import com.cx.server.service.ProjectInfoService;
 import org.yx.annotation.Bean;
 import org.yx.annotation.Inject;
@@ -37,13 +38,18 @@ public class ProjectInfo {
         return projectInfoService.getClassInfo(className).toMap();
     }
 
+    @Web("/project/info/getclassallmethods")
+    public List<MethodInfo> getClassAllMethods(String className) {
+        return projectInfoService.getClassAllMethods(className);
+    }
+
     @Web("/project/info/getClassCodeSource")
     public Map<String, String> getClassCodeSource(String className) {
         return projectInfoService.getClassCodeSource(className);
     }
 
     @Web("/project/stop")
-    public void stop() {
-        projectInfoService.stop();
+    public void stop(String restore) {
+        projectInfoService.stop(restore);
     }
 }

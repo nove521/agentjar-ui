@@ -23,6 +23,12 @@ export default {
             }).then(() => {
                 Message(SUCCEED("更新成功"));
             })
+        },
+        ognlTest({rootState}) {
+            axios.post(rootState.ORNL_TEST_URL)
+        },
+        invokeMethod({rootState}, {className, methodName}) {
+            axios.post(rootState.INVOKE_METHOD_URL, {className, methodName})
         }
     }
 }

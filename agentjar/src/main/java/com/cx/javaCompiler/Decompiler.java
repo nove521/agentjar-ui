@@ -1,14 +1,10 @@
 package com.cx.javaCompiler;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-
 import com.cx.utils.StrUtils;
 import org.benf.cfr.reader.api.CfrDriver;
 import org.benf.cfr.reader.api.OutputSinkFactory;
+
+import java.util.*;
 
 /**
  * 反编译工具类
@@ -27,7 +23,7 @@ public class Decompiler {
             @Override
             public List<SinkClass> getSupportedSinks(SinkType sinkType, Collection<SinkClass> collection) {
                 return Arrays.asList(SinkClass.STRING, SinkClass.DECOMPILED, SinkClass.DECOMPILED_MULTIVER,
-                                SinkClass.EXCEPTION_MESSAGE);
+                        SinkClass.EXCEPTION_MESSAGE);
             }
 
             @Override
@@ -55,14 +51,28 @@ public class Decompiler {
             options.put("methodname", methodName);
         }
 
+        if (classFilePath.contains(".jar")) {
+            int index = classFilePath.indexOf(".jar!/");
+            classFilePath = classFilePath.substring(index + 6);
+        }
+
         CfrDriver driver = new CfrDriver.Builder().withOptions(options).withOutputSink(mySink).build();
         List<String> toAnalyse = new ArrayList<String>();
         toAnalyse.add(classFilePath);
         driver.analyse(toAnalyse);
 
+        if ("null".equals(result.toString())){
+            return null;
+        }
+
         return result.toString().replace("/*\n" +
                 " * Decompiled with CFR.\n" +
-                " */\n","");
+                " */\n", "");
     }
 
+    public static void main(String[] args) {
+//        String decompile = decompile("org/yx/http/kit/HttpTypePredicate.class", null);
+//        System.out.println(decompile);
+        System.out.println(Decompiler.class.getProtectionDomain().getCodeSource().getLocation());
+    }
 }

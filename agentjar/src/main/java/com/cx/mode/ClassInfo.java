@@ -93,8 +93,20 @@ public class ClassInfo {
     }
 
     private void initInfo(Class<?> clazz){
-        setClassLoad(clazz.getClassLoader().toString());
-        setClassLoaderHash(Integer.toHexString(clazz.getClassLoader().hashCode()));
+        ClassLoader loader  = clazz.getClassLoader();
+        if (Objects.nonNull(loader)){
+            setClassLoad(loader.toString());
+            setClassLoaderHash(Integer.toHexString(loader.hashCode()));
+        }
+        setAnnotation(clazz.isAnnotation());
+        setAnonymousClass(clazz.isAnonymousClass());
+        setArray(clazz.isArray());
+        setEnum(clazz.isEnum());
+        setInterface(clazz.isInterface());
+        setLocalClass(clazz.isLocalClass());
+        setName(clazz.getName());
+        setSimpleName(clazz.getSimpleName());
+        setSuperClass(Objects.nonNull(clazz.getSuperclass()) ?clazz.getSuperclass().getName() : "无");
     }
 
     public Map<String, Object> toMap(){
@@ -179,14 +191,6 @@ public class ClassInfo {
 
     public void setModifier(String modifier) {
         this.modifier = modifier;
-    }
-
-    public String getAnnotation() {
-        return annotation;
-    }
-
-    public void setAnnotation(String annotation) {
-        this.annotation = annotation;
     }
 
     public String getInterfaces() {

@@ -1,12 +1,13 @@
 package com.cx.utils;
 
-import com.cx.agent.Session;
+import com.cx.mode.MethodInfo;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -134,38 +135,62 @@ public class ClassUtils {
             return null;
         }
 
+        if (className.contains("$")) {
+            className = className.substring(0, className.indexOf("$"));
+        }
+
         className = className.replace(".", "/");
+
         URL resource = objClazz.getClassLoader().getResource(className + ".class");
 
         if (Objects.isNull(resource)) {
             return null;
         }
 
-        if (resource.toString().indexOf(".jar") > 0) {
-            return className;
-        }
-
-        try {
-            return new File(resource.toURI()).getAbsolutePath();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return null;
-        }
+        String path = resource.toString().replaceAll("file:", "");
+        return path.replaceAll("jar:","");
     }
 
     public static byte[] getByteByClass(Class<?> clazz) {
-        InputStream stream = clazz.getClassLoader().getResourceAsStream(clazz.getName().replace(".", "/") + ".class");
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream("C:/Users/59780/Desktop/by/xx/111/cccc.class");
-            IoUtils.inputStreamToOutputStream(stream, fileOutputStream);
+            InputStream stream = clazz.getClassLoader().getResourceAsStream(clazz.getName().replace(".", "/") + ".class");
+            if (Objects.isNull(stream)) {
+                return null;
+            }
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            IoUtils.inputStreamToOutputStream(stream, outputStream);
+            return outputStream.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    public static List<MethodInfo> getMethodsInfo(Class<?> clazz) {
+        List<MethodInfo> list = new ArrayList<>();
+        Method[] methods = clazz.getDeclaredMethods();
+        for (Method method : methods) {
+            MethodInfo info = new MethodInfo(method);
+            list.add(info);
+        }
+        return list;
+    }
+
+    public static String getSimplePath(String name){
+        int index = name.indexOf("$");
+        String path = name.substring(0, index < 0 ? name.length() - 1 : index);
+        path = path.replace(".","/");
+        return path + ".class";
+    }
+
     public static void main(String[] args) {
-        getByteByClass(ClassUtils.class);
+        URL resource = ClassUtils.class.getClassLoader().getResource("app.properties");
+        System.out.println(resource.getFile());
+        System.out.println(ClassUtils.class.getProtectionDomain().getCodeSource().getLocation());
+
+        String s = "file:/D:/project/xuexi/TestHotUpdate/clientweb/target/classes/agentjar-1.0.jar!/org/yx/http/kit/HttpTypePredicate.class";
+        System.out.println(getSimplePath("java.util.function.Predicate$$Lambda$460/474709547"));
+        System.out.println(s.replaceAll("file:",""));
     }
 }
 

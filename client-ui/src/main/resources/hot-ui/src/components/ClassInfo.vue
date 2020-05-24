@@ -1,55 +1,82 @@
 <template>
-    <el-card class="box-card">
-        <div class="cards">
-            <div class="content">
-                <div class="item" v-for="(item,index) in data"
-                     :key="index">
-                    <div>{{item.key}}</div>：
-                    <div>{{item.val}}</div>
-                </div>
+    <div class="cards">
+        <div class="content">
+            <div style="width: 40%" v-for="(item,index) in data" :key="index">
+               <span style="font-weight: 700"> {{item.name}}</span> : {{item.val}}
             </div>
-            <el-button class="close" type="info" @click="close">关闭</el-button>
         </div>
-    </el-card>
+    </div>
 </template>
 
 <script>
+
+
+    let NAME_MAP = {
+        'name': '类名称',
+        'SimpleName': '类简称',
+        'isInterface': '接口类',
+        'isAnnotation': '注解类',
+        'isEnum': '枚举类',
+        'isAnonymousClass': '匿名类',
+        'isArray': '是数组',
+        'isLocalClass': '本地类',
+        'superClass': '父类是',
+        'ClassLoad': '加载器',
+        'classLoaderHash': '哈希值',
+    }
+
     export default {
         name: "ClassInfo",
         props: {
-            data: {
-                type: Array,
-                default: () => []
+            info: {
+                type: Object,
+                default: () => {
+                }
             }
         },
-        methods: {
-            close() {
-                this.$emit('close')
+        methods: {},
+        computed: {
+            data() {
+                let result = []
+                Object.keys(this.info).forEach(key => {
+                    result.push({
+                        name: NAME_MAP[key],
+                        val: this.info[key] === false ? '不是': this.info[key] === true ? '是' : this.info[key]
+                    })
+                })
+                return result;
             }
         }
     }
 </script>
 
 <style scoped>
-    .box-card{
+    .box-card {
         background-color: white;
     }
-    .cards{
+
+    .cards {
+        width: 100%;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
     }
-    .content{
-        padding: 20px;
+
+    .content {
+        width: 100%;
+        padding: 20px 0;
         display: flex;
-        flex-direction: column;
         align-items: center;
+        flex-wrap: wrap;
+        color: #777777;
     }
-    .item{
+
+    .item {
         display: flex;
         line-height: 40px;
     }
-    .close{
+
+    .close {
         margin: 10px 0;
     }
 </style>

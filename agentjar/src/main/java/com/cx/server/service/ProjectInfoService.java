@@ -3,23 +3,16 @@ package com.cx.server.service;
 import com.cx.agent.Session;
 import com.cx.javaCompiler.Decompiler;
 import com.cx.mode.ClassInfo;
+import com.cx.mode.MethodInfo;
 import com.cx.utils.ClassUtils;
 import com.cx.utils.StrUtils;
 import org.yx.annotation.Bean;
+import org.yx.annotation.Inject;
 import org.yx.main.SumkServer;
 
-import java.io.File;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
-import java.net.URL;
-import java.security.ProtectionDomain;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-
-import static java.lang.System.arraycopy;
 
 /**
  * 项目相关服务工具
@@ -28,6 +21,9 @@ import static java.lang.System.arraycopy;
 public class ProjectInfoService {
 
     private static final Instrumentation INS = Session.getIns();
+
+    @Inject
+    private HotUpdateService hotUpdateService;
 
     /**
      * 获取jvm加载的所有类
@@ -40,14 +36,16 @@ public class ProjectInfoService {
 
         List<Class<?>> classList = Session.getClassCache();
         int total = (int) classList.stream().filter(item -> item.getName().matches(regx)).count();
-        List<Map<String, String>> data = classList.stream()
+        List<Map<String, Object>> data = classList.stream()
                 .filter(item -> item.getName().matches(regx))
                 .skip((page - 1) * size)
                 .limit(size)
                 .map(clazz -> {
-                    Map<String, String> result = new HashMap<>();
+                    Map<String, Object> result = new HashMap<>();
                     result.put("SimpleName", "".equals(clazz.getSimpleName()) ? clazz.getName() : clazz.getSimpleName());
                     result.put("name", clazz.getName());
+                    result.put("info", new ClassInfo(clazz));
+                    result.put("methods", ClassUtils.getMethodsInfo(clazz));
                     return result;
                 }).collect(Collectors.toList());
 
@@ -64,66 +62,49 @@ public class ProjectInfoService {
      * @return classInfo
      */
     public ClassInfo getClassInfo(String className) {
-        List<Class<?>> classList = Session.getClassCache();
-        Optional<Class<?>> aClass = classList.stream().filter(item -> item.getName().equals(className)).findFirst();
-        return new ClassInfo(aClass.get());
+        return new ClassInfo(getClazz(className));
     }
 
     public Map<String, String> getClassCodeSource(String className) {
         Map<String, String> result = new HashMap<>();
-        String path = ClassUtils.getPathByClassName(Session.getClassCache(), className);
-        if (Objects.isNull(path)) {
-            result.put("code", "not Find");
-            result.put("name", className);
-            return result;
+        String javaCode = Session.getCacheNewClassByte().get(className);
+
+        if (Objects.isNull(javaCode)) {
+            String path = ClassUtils.getSimplePath(className);
+            javaCode = Decompiler.decompile(path, null);
+            if (StrUtils.isBlank(javaCode)) {
+                path = ClassUtils.getPathByClassName(Session.getClassCache(), className);
+                javaCode = Decompiler.decompile(path, null);
+                if (StrUtils.isBlank(javaCode)) {
+                    result.put("code", "not Find");
+                    result.put("name", className);
+                    return result;
+                }
+            }
         }
-        String code = Decompiler.decompile(path, null);
-        result.put("code", code);
+
+        result.put("code", javaCode);
         result.put("name", className);
         return result;
     }
 
-    public void stop() {
-        resetClass();
-        SumkServer.stop();
+    public List<MethodInfo> getClassAllMethods(String className) {
+        Class<?> clazz = getClazz(className);
+        return ClassUtils.getMethodsInfo(clazz);
     }
 
-    private void resetClass() {
-        Map<Class<?>, byte[]> cacheClassByte = Session.getCacheClassByte();
+    private Class<?> getClazz(String className) {
+        List<Class<?>> classList = Session.getClassCache();
+        Optional<Class<?>> aClass = classList.stream().filter(item -> item.getName().equals(className)).findFirst();
+        return aClass.orElse(null);
+    }
 
-        Set<Class<?>> keySet = cacheClassByte.keySet();
-        if (keySet.isEmpty()) {
-            System.out.println("keySet is null");
-            return;
+    public void stop(String restore) {
+        boolean restoreBool = Boolean.parseBoolean(restore);
+        if (restoreBool) {
+            hotUpdateService.resetClass();
         }
-        // 一个空的转换器
-        final ClassFileTransformer resetClassTransformer = new ClassFileTransformer() {
-            @Override
-            public byte[] transform(ClassLoader loader,
-                                    String className,
-                                    Class<?> classBeingRedefined,
-                                    ProtectionDomain protectionDomain,
-                                    byte[] classfileBuffer) throws IllegalClassFormatException {
-                byte[] bytes = cacheClassByte.get(classBeingRedefined);
-                System.out.println("bytes "+ bytes.length);
-                return bytes;
-            }
-        };
-        INS.addTransformer(resetClassTransformer, true);
-
-        Class<?>[] array = keySet.toArray(new Class<?>[0]);
-
-        try {
-            if (array.length > 0) {
-                System.out.println("arr len " + array[0].getName());
-                INS.retransformClasses(array);
-            }
-        } catch (UnmodifiableClassException e) {
-            e.printStackTrace();
-        } finally {
-            INS.removeTransformer(resetClassTransformer);
-            Session.clearCacheClassByte();
-        }
+        SumkServer.stop();
     }
 
 }

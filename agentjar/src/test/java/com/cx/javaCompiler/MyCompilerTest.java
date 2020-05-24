@@ -1,15 +1,10 @@
 package com.cx.javaCompiler;
 
-import com.cx.server.service.ProjectInfoService;
-import com.cx.utils.ClassUtils;
 import com.cx.utils.IoUtils;
 import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.security.ProtectionDomain;
 import java.util.Map;
 
 public class MyCompilerTest {

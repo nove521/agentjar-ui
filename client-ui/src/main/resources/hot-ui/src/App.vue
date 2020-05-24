@@ -1,16 +1,33 @@
 <template>
-  <router-view/>
+    <router-view/>
 </template>
 
 <script>
-export default {
-  name: 'App'
-}
+    import cookies from "./utils/cookies";
+    import {mapActions} from 'vuex'
+
+    export default {
+        name: 'App',
+        created() {
+          this.isLogin()
+        },
+        methods: {
+            ...mapActions([
+                'setLogin'
+            ]),
+            isLogin() {
+                if (cookies.isLogin()){
+                    this.setLogin()
+                    this.$router.replace('/')
+                }
+            }
+        }
+    }
 </script>
 
 <style>
-  body,html{
-    margin: 0;
-    padding: 0;
-  }
+    body, html {
+        margin: 0;
+        padding: 0;
+    }
 </style>

@@ -16,6 +16,8 @@ let changeClassInfo = (classInfo) => {
 
 export default {
     state: {
+        ROOT_PATH: '',
+        search: '',
         jvmlist: [],
         jvmInfo: {},
         classAll: {
@@ -25,6 +27,16 @@ export default {
         classInfo: []
     },
     mutations: {
+        setROOTPATH(state, {search}) {
+            state.ROOT_PATH = search
+            state.search = search
+        },
+        initClassSearch(state){
+            state.search = state.ROOT_PATH
+        },
+        setClassSearch(state, {search}) {
+            state.search = search
+        },
         setClassInfo(state, classInfo) {
             state.classInfo = classInfo
         },
@@ -39,8 +51,16 @@ export default {
         }
     },
     actions: {
+        getClassAllMethods({rootState}, {className}) {
+            axios.post(rootState.CLASS_ALL_METHODS_URL,
+                {className: className}).then(response => {
+                console.log(response)
+            })
+        },
         getClassCodeSource({rootState, commit}, {className}) {
-            axios.get(rootState.CLASS_CODE_URL + `?data={"className":${className}}`).then(response => {
+            axios.post(rootState.CLASS_CODE_URL, {
+                className: className
+            }).then(response => {
                 commit('setCurrentAsideIndex', {currentAsideIndex: '2-3'})
                 console.log(rootState.System.currentAsideIndex)
                 commit('setJavaCode', {code: response.data.code})
@@ -49,12 +69,14 @@ export default {
             })
         },
         getClassInfo({rootState, commit}, {className}) {
-            axios.get(rootState.CLASS_INFO_URL + `?data={"className":${className}}`).then(response => {
+            axios.get(rootState.CLASS_INFO_URL + `?data={"className":"${className}"}`).then(response => {
                 commit('setClassInfo', changeClassInfo(response.data))
             })
         },
         async getClassAll({rootState, commit}, {page, size, pattenName}) {
-            await axios.get(rootState.CLASS_ALL_URL + `?data={"page":${page},"size":${size},"pattenName":"${pattenName}"}`).then(response => {
+            await axios.post(rootState.CLASS_ALL_URL,
+                {page: page, size: size, pattenName: pattenName}
+            ).then(response => {
                 commit('setClassAll', response.data)
             })
         },
@@ -68,7 +90,7 @@ export default {
                 commit('setJvmlist', response.data)
             })
         },
-        joinJvm({dispatch, rootState}, {id}) {
+        joinJvm({dispatch, rootState, commit}, {id, name}) {
             const loading = Loading.service({
                 lock: true,
                 text: '加载中',
@@ -78,14 +100,16 @@ export default {
 
             axios.get(rootState.JVM_JOIN_URL, {params: {data: {id}}}).then(() => {
                 dispatch('changeInProject')
+                let search = name.split(".")[0] + '.' + name.split(".")[1]
+                commit('setROOTPATH', {search: search})
                 Message(SUCCEED());
             }).finally(() => {
                 loading.close()
                 dispatch('getJvmlist')
             })
         },
-        outJvm({dispatch, rootState}) {
-            axios.get(rootState.JVM_OUT_URL).then(() => {
+        outJvm({dispatch, rootState}, {restore}) {
+            axios.get(rootState.JVM_OUT_URL + `?data={"restore":"${restore}"}`).then(() => {
                 dispatch('changeOutProject')
                 Message(SUCCEED());
             })

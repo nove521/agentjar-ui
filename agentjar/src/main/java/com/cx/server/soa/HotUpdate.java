@@ -12,10 +12,20 @@ import org.yx.annotation.http.Web;
 public class HotUpdate {
 
     @Inject
-    private HotUpdateService HotUpdateService;
+    private HotUpdateService hotUpdateService;
 
     @Web("/hotupdate/updateClassByString")
     public String updateClassByString(String className, String javaCode) {
-        return HotUpdateService.updateClassByString(className,javaCode);
+        return hotUpdateService.updateClassByString(className,javaCode);
+    }
+
+    @Web("/hotupdate/ognltest")
+    public String ognltest() {
+        return hotUpdateService.ognltest();
+    }
+
+    @Web("/hotupdate/invoke")
+    public Object invoke(String className, String methodName){
+        return hotUpdateService.invoke(className,methodName);
     }
 }

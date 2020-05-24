@@ -9,6 +9,8 @@
 </template>
 
 <script>
+    import {mapActions} from 'vuex'
+
     export default {
         name: "Login",
         data() {
@@ -20,10 +22,11 @@
             this.$refs.inputToken.focus()
         },
         methods: {
+            ...mapActions([
+                'login'
+            ]),
             subInput() {
-                console.log(this.input)
-                this.$store.commit('setIsLogin', {isLogin: true})
-                this.$router.replace('/')
+                this.login({token: this.input})
             }
         }
     }

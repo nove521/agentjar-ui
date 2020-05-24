@@ -4,8 +4,6 @@ import com.cx.enums.SystemMessage;
 import com.cx.utils.ClassUtils;
 
 import javax.tools.*;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.*;
 
 /**
@@ -74,7 +72,6 @@ public class MyCompiler {
             return myJavaFileManage.getOutClassSource();
         } else {
             MyExceptionReporter reporter = new MyExceptionReporter(diagnostics.getDiagnostics());
-            System.out.println(reporter.toReporter());
         }
         return null;
     }

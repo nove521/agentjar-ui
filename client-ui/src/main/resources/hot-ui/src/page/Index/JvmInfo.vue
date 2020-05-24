@@ -15,11 +15,18 @@
                         width="180">
                 </el-table-column>
             </el-table>
+            <el-button
+                    size="mini"
+                    type="danger"
+                    @click.stop="ognl">ognl
+            </el-button>
         </el-card>
     </div>
 </template>
 
 <script>
+    import {mapActions} from 'vuex'
+
     export default {
         name: "JvmInfo",
         data() {
@@ -47,8 +54,14 @@
             this.initData()
         },
         methods: {
+            ...mapActions([
+                'ognlTest'
+            ]),
             initData() {
 
+            },
+            ognl(){
+                this.ognlTest()
             }
         }
     }

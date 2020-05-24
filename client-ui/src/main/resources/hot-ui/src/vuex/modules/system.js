@@ -1,12 +1,20 @@
 import router from "../../router/index";
+import axios from "../../utils/axios";
+import {Message} from "element-ui";
+import {REQUEST_ERROR} from '@/utils/constant'
+import cookies from "../../utils/cookies";
 
 export default {
     state: {
-        isLogin: true,
+        isLogin: false,
         isCheckJvm: false,
-        currentAsideIndex: '1'
+        currentAsideIndex: '1',
+        authKey: ''
     },
     mutations: {
+        setAuthKey(state, {authKey}) {
+            state.authKey = authKey
+        },
         setCurrentAsideIndex(state, {currentAsideIndex}) {
             state.currentAsideIndex = currentAsideIndex
         },
@@ -27,6 +35,25 @@ export default {
             commit('setIsCheckJvm', {isCheckJvm: false})
             commit('setCurrentAsideIndex', {currentAsideIndex: '1'})
             router.replace('/')
+        },
+        setLogin({commit}) {
+            commit('setAuthKey', {authKey: ''})
+            commit('setIsLogin', {isLogin: true})
+        },
+        login({commit, rootState}, {token}) {
+            axios.get(rootState.LOGIN_URL + `?key=${token}`).then((response) => {
+                commit('setIsLogin', {isLogin: true})
+                commit('setAuthKey', {authKey: response.data})
+                router.replace('/')
+            }).catch(err => {
+                let response = err.response;
+                Message(REQUEST_ERROR(response.data.message))
+            })
+        },
+        outLoginLocal({commit}){
+            commit('setIsLogin', {isLogin: false})
+            commit('setAuthKey', {authKey: ''})
+            cookies.clearLogin()
         }
     }
 }
