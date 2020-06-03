@@ -11,9 +11,9 @@ public class Session {
     private static Instrumentation ins;
 
     // 保留热更新前 原始的类文件
-    private static final Map<Class<?>,byte[]> cacheClassByte = new HashMap<>();
+    private static final Map<Class<?>, byte[]> cacheClassByte = new HashMap<>();
     // 存放最新更改的java文件。
-    private static final Map<String,String> cacheNewClassByte = new HashMap<>();
+    private static final Map<String, String> cacheNewClassByte = new HashMap<>();
 
     public static void setIns(Instrumentation ins) {
         Session.ins = ins;
@@ -43,15 +43,15 @@ public class Session {
 
     public static List<Class<?>> getClassCache() {
         Class<?>[] allLoadedClasses = ins.getAllLoadedClasses();
-        return Arrays.stream(allLoadedClasses).filter(item ->{
-            if (Objects.isNull(item.getClassLoader())){
+        return Arrays.stream(allLoadedClasses).filter(item -> {
+            if (Objects.isNull(item.getClassLoader())) {
                 return false;
             }
             try {
-                if (item.getProtectionDomain().getCodeSource().getLocation().toString().contains("agentjar-")){
+                if (item.getProtectionDomain().getCodeSource().getLocation().toString().contains("agentjar-")) {
                     return false;
                 }
-            }catch (NullPointerException e){
+            } catch (NullPointerException e) {
                 return false;
             }
             return true;
@@ -67,19 +67,19 @@ public class Session {
         getClassCache();
     }
 
-    public static Map<Class<?>,byte[]> getCacheClassByte(){
+    public static Map<Class<?>, byte[]> getCacheClassByte() {
         return Session.cacheClassByte;
     }
 
-    public static Map<String,String> getCacheNewClassByte(){
+    public static Map<String, String> getCacheNewClassByte() {
         return Session.cacheNewClassByte;
     }
 
-    public static void clearCacheClassByte(){
+    public static void clearCacheClassByte() {
         Session.cacheClassByte.clear();
     }
 
-    public static void clearCacheNewClassByte(){
+    public static void clearCacheNewClassByte() {
         Session.cacheNewClassByte.clear();
     }
 }

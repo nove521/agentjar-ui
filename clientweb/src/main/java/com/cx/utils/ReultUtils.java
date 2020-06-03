@@ -29,10 +29,9 @@ public enum ReultUtils {
         return SUCCEED(Collections.emptyList());
     }
 
-    public static <T> ResultObject<T> SUCCEED(String msg) {
+    public static <T> ResultObject<T> SUCCEED_MSG(String msg) {
         return new ResultObject<>(SUCCEED.getCode(), msg, null);
     }
-
 
     public static <T> ResultObject<T> SUCCEED() {
         return new ResultObject<>(SUCCEED.getCode(), SUCCEED.getMsg(), null);

@@ -27,8 +27,8 @@ export default {
         ognlTest({rootState}) {
             axios.post(rootState.ORNL_TEST_URL)
         },
-        invokeMethod({rootState}, {className, methodName}) {
-            axios.post(rootState.INVOKE_METHOD_URL, {className, methodName})
+        invokeMethod({rootState}, {className, methodName, paramsJson}) {
+            return axios.post(rootState.INVOKE_METHOD_URL, {className, methodName, paramsJson})
         }
     }
 }

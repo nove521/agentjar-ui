@@ -2,6 +2,7 @@ package com.cx.utils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class IoUtils {
 
@@ -24,17 +25,46 @@ public class IoUtils {
         return result;
     }
 
-    public static void inputStreamToOutputStream(InputStream inputStream, OutputStream outputStream) throws IOException {
+    public static byte[] inputStreamToByte(InputStream inputStream) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        byte[] buf = new byte[1024];
+        try {
+            while (inputStream.read(buf) >= 0) {
+                outputStream.write(buf);
+            }
+            return outputStream.toByteArray();
+        } catch (IOException ignored) {
+        } finally {
+            try {
+                inputStream.close();
+                outputStream.close();
+            } catch (IOException ignored) {
+            }
+        }
+        return new byte[0];
+    }
+
+
+    public static void inputStreamToOutputStream(InputStream inputStream, OutputStream outputStream,boolean close) throws IOException {
         byte[] buf = new byte[1024];
         int len;
         while ((len = inputStream.read(buf)) >= 0) {
             outputStream.write(buf, 0, len);
         }
-        outputStream.close();
-        inputStream.close();
+        if (close){
+            outputStream.close();
+            inputStream.close();
+        }
     }
 
     public static void toFileByByte(byte[] buff, String path) {
+
+        String dirPath = path.substring(0, path.lastIndexOf("\\"));
+        File file = new File(dirPath);
+        if (!file.exists()){
+            file.mkdirs();
+        }
+
         FileOutputStream fileOutputStream = null;
         try {
             fileOutputStream = new FileOutputStream(path);
@@ -60,11 +90,28 @@ public class IoUtils {
         try {
             FileInputStream inputStream = new FileInputStream(file);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            inputStreamToOutputStream(inputStream, outputStream);
+            inputStreamToOutputStream(inputStream, outputStream,true);
             return outputStream.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return new byte[0];
+    }
+
+    public static String throwableErrToStr(Throwable e) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        PrintStream outputStream = new PrintStream(out);
+        e.printStackTrace(outputStream);
+        return out.toString();
+    }
+
+    public static void closeSteam(Closeable closeable) {
+        if (Objects.nonNull(closeable)) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

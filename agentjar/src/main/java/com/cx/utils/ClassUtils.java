@@ -1,15 +1,23 @@
 package com.cx.utils;
 
 import com.cx.mode.MethodInfo;
+import com.cx.server.ann.Http;
+import com.cx.server.ann.Join;
+import com.cx.server.ann.Obj;
+import javassist.NotFoundException;
 
 import java.io.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.rmi.NotBoundException;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class ClassUtils {
 
@@ -148,7 +156,7 @@ public class ClassUtils {
         }
 
         String path = resource.toString().replaceAll("file:", "");
-        return path.replaceAll("jar:","");
+        return path.replaceAll("jar:", "");
     }
 
     public static byte[] getByteByClass(Class<?> clazz) {
@@ -158,7 +166,7 @@ public class ClassUtils {
                 return null;
             }
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            IoUtils.inputStreamToOutputStream(stream, outputStream);
+            IoUtils.inputStreamToOutputStream(stream, outputStream,true);
             return outputStream.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
@@ -176,21 +184,234 @@ public class ClassUtils {
         return list;
     }
 
-    public static String getSimplePath(String name){
+    public static String getSimplePath(String name) {
         int index = name.indexOf("$");
         String path = name.substring(0, index < 0 ? name.length() - 1 : index);
-        path = path.replace(".","/");
+        path = path.replace(".", "/");
         return path + ".class";
     }
 
-    public static void main(String[] args) {
-        URL resource = ClassUtils.class.getClassLoader().getResource("app.properties");
-        System.out.println(resource.getFile());
-        System.out.println(ClassUtils.class.getProtectionDomain().getCodeSource().getLocation());
-
-        String s = "file:/D:/project/xuexi/TestHotUpdate/clientweb/target/classes/agentjar-1.0.jar!/org/yx/http/kit/HttpTypePredicate.class";
-        System.out.println(getSimplePath("java.util.function.Predicate$$Lambda$460/474709547"));
-        System.out.println(s.replaceAll("file:",""));
+    public static List<Class<?>> getClassByPackNames(List<String> packNames) throws ClassNotFoundException {
+        List<Class<?>> reuslt = new ArrayList<>();
+        for (String packName : packNames) {
+            reuslt.add(Class.forName(packName));
+        }
+        return reuslt;
     }
+
+    public static List<Class<?>> filterClass(List<Class<?>> classList, Predicate<Class<?>> predicate) {
+        return classList.stream().filter(predicate).collect(Collectors.toList());
+    }
+
+    /**
+     * 过滤
+     *
+     * @param classList
+     * @param anns
+     * @return
+     */
+    public static List<Class<?>> filterClassByAnn(List<Class<?>> classList, Class<?>... anns) {
+        List<Class<?>> asList = Arrays.asList(anns);
+
+        return classList.stream().filter(clazz -> {
+            List<Annotation> annotations = Arrays.asList(clazz.getAnnotations());
+            return annotations.stream().anyMatch(item -> asList.contains(item.annotationType()));
+        }).collect(Collectors.toList());
+    }
+
+    /**
+     * 生成 bean
+     *
+     * @param list
+     * @param beans
+     * @return
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @throws ClassNotFoundException
+     */
+    public static Map<Class<?>, Object> generateBeans(List<Class<?>> list, Map<Class<?>, Object> beans) throws IllegalAccessException, InstantiationException, ClassNotFoundException {
+        for (Class<?> aClass : list) {
+            Object obj = aClass.newInstance();
+            beans.put(aClass, obj);
+        }
+        linkBeans(beans);
+        return beans;
+    }
+
+    /**
+     * 链接
+     *
+     * @param beanMap
+     * @return
+     * @throws ClassNotFoundException
+     * @throws IllegalAccessException
+     */
+    private static Map<Class<?>, Object> linkBeans(Map<Class<?>, Object> beanMap) throws ClassNotFoundException, IllegalAccessException {
+        for (Class<?> aClass : beanMap.keySet()) {
+            Object currObj = beanMap.get(aClass);
+            Field[] fields = aClass.getDeclaredFields();
+            for (Field field : fields) {
+                Object bean = getFieldAnnBean(field, beanMap);
+                if (Objects.nonNull(bean)) {
+                    field.setAccessible(true);
+                    field.set(currObj, bean);
+                }
+            }
+        }
+        return beanMap;
+    }
+
+    /**
+     * 获取字段bean对象
+     *
+     * @param field
+     * @param beanMap
+     * @return
+     * @throws ClassNotFoundException
+     */
+    private static Object getFieldAnnBean(Field field, Map<Class<?>, Object> beanMap) throws ClassNotFoundException {
+        List<Annotation> annotations = Arrays.asList(field.getAnnotations());
+        boolean match = annotations.stream().anyMatch(annotation -> annotation.annotationType().equals(Join.class));
+        if (match) {
+            Class<?> type = field.getType();
+            Object bean = beanMap.get(type);
+            if (Objects.isNull(bean)) {
+                throw new ClassNotFoundException("没有找到" + field.getName());
+            }
+            return bean;
+        }
+        return null;
+    }
+
+    public static boolean equalsAnn(Annotation[] annotation, Class<?> clazz) {
+        List<Annotation> annotationList = Arrays.asList(annotation);
+        return annotationList.stream().anyMatch(ann -> ann.annotationType().equals(clazz));
+    }
+
+    public static Annotation equalsGetAnn(Annotation[] annotation, Class<?> clazz) {
+        List<Annotation> annotationList = Arrays.asList(annotation);
+        Optional<Annotation> first = annotationList.stream().filter(ann -> ann.annotationType().equals(clazz)).findFirst();
+        return first.orElse(null);
+    }
+
+    public static String getAnnsVal(Annotation[] annotation) {
+        List<Annotation> annotationList = Arrays.asList(annotation);
+        Optional<Annotation> first = annotationList.stream().filter(annotation1 -> annotation1.annotationType().equals(Http.class)).findFirst();
+        Annotation annotation1 = first.get();
+        Http http = (Http) annotation1;
+        return http.value();
+    }
+
+    public static Method matchMethod(Method[] methods, String methodName) {
+        for (Method method : methods) {
+            if (method.getName().equals(methodName)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
+    public static List<Map<String, Object>> getDirMapDataByUrl(URL url) throws URISyntaxException {
+        String path = url.toString();
+        if (path.matches("^.*\\.jar!/.*$")) {
+            List<String> pathByJar = FileUtils.getDirAllResourceByJar(url.toURI());
+            return generateDirDate(pathByJar);
+        } else {
+            File file = new File(url.toURI());
+            List<String> pathList = new ArrayList<>();
+            FileUtils.getFiles(file, pathList);
+
+            String finalPath = path.replace("file:/", "");
+
+            List<String> collect = pathList.stream().map(item -> item.replace(finalPath, "")).collect(Collectors.toList());
+            return generateDirDate(collect);
+        }
+    }
+
+    public static String getUrlFileCode(URL url, String fileName) throws URISyntaxException {
+        String path = url.toString();
+        if (path.matches("^.*\\.jar!/.*$")) {
+            return FileUtils.getJarFileCode(url.toURI(), fileName);
+        } else {
+            return FileUtils.getFileCode(url.toURI(), fileName);
+        }
+    }
+
+    public static int saveUrlFileCode(URL url, String fileName, String code) throws URISyntaxException {
+        String path = url.toString();
+        if (path.matches("^.*\\.jar!/.*$")) {
+            return FileUtils.saveJarFileCode(url.toURI(), fileName, code);
+        } else {
+            return FileUtils.saveFileCode(url.toURI(), fileName, code);
+        }
+    }
+
+    /**
+     * @param filesList
+     * @return
+     */
+    public static List<Map<String, Object>> generateDirDate(List<String> filesList) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        Map<String, Object> cache = new HashMap<>();
+        int id = 1;
+
+        for (String fileName : filesList) {
+            String[] split = fileName.split("/");
+            StringBuilder key = new StringBuilder();
+            List<Map<String, Object>> resultList = result;
+            for (String item : split) {
+                key.append("/").append(item);
+                Object val = cache.get(key.toString());
+                if (Objects.isNull(val)) {
+                    Map<String, Object> children = new HashMap<>();
+                    children.put("id", id++);
+                    children.put("label", item);
+                    children.put("path", key.substring(1));
+                    children.put("isFile", fileName.endsWith(item));
+                    children.put("children", new ArrayList<>());
+                    resultList.add(children);
+                    cache.put(key.toString(), children);
+                    resultList = (List<Map<String, Object>>) children.get("children");
+                } else {
+                    resultList = (List<Map<String, Object>>) ((Map) val).get("children");
+                }
+            }
+        }
+        return result;
+    }
+
+    public static void main(String[] args) {
+//        URL resource = ClassUtils.class.getClassLoader().getResource("app.properties");
+//        System.out.println(resource.getFile());
+//        System.out.println(ClassUtils.class.getProtectionDomain().getCodeSource().getLocation());
+//
+//        String s = "file:/D:/project/xuexi/TestHotUpdate/clientweb/target/classes/agentjar-1.0.jar!/org/yx/http/kit/HttpTypePredicate.class";
+//        System.out.println(getSimplePath("java.util.function.Predicate$$Lambda$460/474709547"));
+//        System.out.println(s.replaceAll("file:", ""));
+
+        // BOOT-INF/classes/com/example/simple/SimpleApplication.class, BOOT-INF/classes/templates/sds]
+        List<String> list = new ArrayList<>();
+//        list.add("BOOT-INF/classes/");
+//        list.add("BOOT-INF/classes/com/");
+//        list.add("BOOT-INF/classes/com/example/");
+//        list.add("BOOT-INF/classes/com/example/simple/");
+//        list.add("BOOT-INF/classes/com/example/simple/controller/");
+//        list.add("BOOT-INF/classes/com/example/simple/controller/");
+//        list.add("BOOT-INF/classes/templates/");
+//        list.add("BOOT-INF/classes/application.properties");
+//        list.add("BOOT-INF/classes/com/example/simple/controller/HelloController.class");
+//        list.add("BOOT-INF/classes/com/example/simple/controller/X.class");
+//        list.add("BOOT-INF/classes/com/example/simple/SimpleApplication.class");
+//        list.add("BOOT-INF/classes/templates/sds");
+        // com/example/simple/controller/X.class, com/example/simple/SimpleApplication.class, templates/sds]
+        list.add("application.properties");
+        list.add("com/example/simple/controller/X.class");
+        list.add("com/example/simple/controller/HelloController.class");
+        list.add("templates/sds");
+        list.add("com/example/simple/SimpleApplication.class");
+        List<Map<String, Object>> list1 = generateDirDate(list);
+        System.out.println(StrUtils.json().toJson(list1));
+    }
+
 }
 

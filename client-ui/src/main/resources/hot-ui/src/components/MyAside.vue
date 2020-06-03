@@ -19,6 +19,8 @@
                 </el-menu-item>
                 <el-menu-item index="2-3" :route="{ path: '/HotUpdate' }" :disabled="isCheckJvm === false">热更新
                 </el-menu-item>
+                <el-menu-item index="2-4" :route="{ path: '/ResourceDir' }" :disabled="isCheckJvm === false">资源目录
+                </el-menu-item>
             </el-menu-item-group>
         </el-submenu>
         <el-menu-item index="3" :route="{ path: '' }" :disabled="isCheckJvm === false">

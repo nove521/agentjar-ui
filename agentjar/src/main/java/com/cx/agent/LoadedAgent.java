@@ -1,23 +1,22 @@
 package com.cx.agent;
 
-import org.yx.main.SumkServer;
-import org.yx.util.S;
+import com.cx.utils.StrUtils;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.Collections;
 
 public class LoadedAgent {
     public static void agentmain(String agentArgs, Instrumentation inst) {
         try {
             Session.setIns(inst);
-            Collection<String> options = S.json.fromJson(agentArgs,(Type)Collection.class);
-            SumkServer.start(Collections.unmodifiableCollection(options));
-        }catch (Error e){
+            JsonArray options = StrUtils.json().fromJson(agentArgs, (Type) JsonArray.class);
+            ContextManage.start(options);
+        } catch (Error e) {
             e.printStackTrace();
         }
 

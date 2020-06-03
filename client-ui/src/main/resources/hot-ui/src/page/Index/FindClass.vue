@@ -25,7 +25,7 @@
                 </el-button>
             </div>
         </div>
-        <div  v-loading="loading">
+        <div v-loading="loading">
             <el-collapse accordion>
                 <el-collapse-item :name="index"
                                   v-for="(item,index) in list"
@@ -44,7 +44,7 @@
                         </div>
                     </template>
                     <class-info :info="item.info"/>
-                    <method-info :data="item.methods" :className="item.name"></method-info>
+                    <method-info :data="item.methods" :className="item.name" :haveBean="item.haveBean"/>
                 </el-collapse-item>
             </el-collapse>
         </div>

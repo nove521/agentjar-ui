@@ -21,7 +21,7 @@ public class HotUpdateController {
     public ResultObject<String> updateClassByString(@Param("类名") String className,
                                                     @Param("java 源码") String javaCode) {
 
-        Optional<String> send = HttpU.send("http://127.0.0.1:18088/rest/hotupdate/updateClassByString",
+        Optional<String> send = HttpU.send("http://127.0.0.1:19998/hotupdate/updateClassByString",
                 String.class,
                 new MyMap<String, String>()
                         .puti("className", className)
@@ -33,8 +33,8 @@ public class HotUpdateController {
     }
 
     @Web(value = "/ognl-test", requireLogin = true)
-    public ResultObject<Object> ognlTest(){
-        Optional<Object> send = HttpU.send("http://127.0.0.1:18088/rest/hotupdate/ognltest",
+    public ResultObject<Object> ognlTest() {
+        Optional<Object> send = HttpU.send("http://127.0.0.1:19998/hotupdate/ognltest",
                 Object.class, Collections.emptyMap());
 
         return send.<ResultObject<Object>>
@@ -43,15 +43,16 @@ public class HotUpdateController {
     }
 
     @Web("/invoke-method")
-    public ResultObject<Object> invoke(String className, String methodName){
+    public ResultObject<String> invoke(String className, String methodName, String paramsJson) {
 
-        Optional<Object> send = HttpU.send("http://127.0.0.1:18088/rest/hotupdate/invoke",
-                Object.class, new MyMap<String, String>()
-                        .puti("className",className)
-                        .puti("methodName",methodName));
+        Optional<String> send = HttpU.send("http://127.0.0.1:19998/hotupdate/invoke",
+                String.class, new MyMap<String, String>()
+                        .puti("className", className)
+                        .puti("methodName", methodName)
+                        .puti("paramsJson", paramsJson));
 
-        return send.<ResultObject<Object>>
+        return send.<ResultObject<String>>
                 map(ReultUtils::SUCCEED).
-                orElseGet(ReultUtils::ERROR_JVM_COMPLIER_FAIL);
+                orElseGet(ReultUtils::SUCCEED);
     }
 }

@@ -1,25 +1,39 @@
 <template>
     <div style="font-size: 15px;">
         <p>方法列表：</p>
-        <div v-for="(item,index) in data" :key="index"
-             style="display: flex; padding: 5px 0; justify-content: space-between; padding-right: 40px;border-bottom: 1px solid #dddddd;">
-            <div>{{item.returnType}} <span style="font-weight: 700;">{{item.name}}</span>（{{item.paramsType.join(",")}}）
-            </div>
-            <el-button
-                    @click="invoke(item)"
-                    size="mini"
-                    type="primary">执行
-            </el-button>
-        </div>
+        <el-collapse>
+            <el-collapse-item :name="index"
+                              :disabled="!haveBean"
+                              v-for="(item,index) in data"
+                              :key="index">
+                <template slot="title">
+                    <div class="han">
+                        <div>{{item.returnType}} <span style="font-weight: 700;">{{item.name}}</span>（{{item.paramsType.join(",")}}）
+                        </div>
+                        <div style="margin-right: 10px;" v-if="haveBean">
+                            <el-button
+                                    size="mini"
+                                    type="primary">准备调用
+                            </el-button>
+                        </div>
+                    </div>
+                </template>
+                <method-panel :info="item" :className="className"/>
+            </el-collapse-item>
+        </el-collapse>
     </div>
 </template>
 
 <script>
-    import {mapActions} from 'vuex'
+    import MethodPanel from './MethodPanel'
 
     export default {
         name: "MethodInfo",
         props: {
+            haveBean: {
+                type: Boolean,
+                default: false
+            },
             className: {
                 type: String,
                 default: ""
@@ -29,19 +43,17 @@
                 default: () => []
             }
         },
-        methods: {
-            ...mapActions([
-                'invokeMethod'
-            ]),
-            invoke(item) {
-                let {name} = item
-                let className = this.className
-                this.invokeMethod({className, methodName: name})
-            }
+        methods: {},
+        components: {
+            MethodPanel
         }
     }
 </script>
 
 <style scoped>
-
+    .han {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
 </style>

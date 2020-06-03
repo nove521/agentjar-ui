@@ -1,28 +1,33 @@
 package com.cx.server.service;
 
+import com.cx.agent.ContextManage;
 import com.cx.agent.Session;
+import com.cx.contentBean.BeanManage;
+import com.cx.contentBean.factory.GetBeanFactory;
 import com.cx.javaCompiler.Decompiler;
 import com.cx.mode.ClassInfo;
 import com.cx.mode.MethodInfo;
+import com.cx.server.ann.Join;
+import com.cx.server.ann.Obj;
 import com.cx.utils.ClassUtils;
 import com.cx.utils.StrUtils;
-import org.yx.annotation.Bean;
-import org.yx.annotation.Inject;
-import org.yx.main.SumkServer;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * 项目相关服务工具
  */
-@Bean
+@Obj
 public class ProjectInfoService {
 
     private static final Instrumentation INS = Session.getIns();
 
-    @Inject
+    @Join
     private HotUpdateService hotUpdateService;
 
     /**
@@ -46,6 +51,13 @@ public class ProjectInfoService {
                     result.put("name", clazz.getName());
                     result.put("info", new ClassInfo(clazz));
                     result.put("methods", ClassUtils.getMethodsInfo(clazz));
+                    BeanManage beanManage = GetBeanFactory.generateBeanManage();
+                    if (Objects.isNull(beanManage)) {
+                        result.put("haveBean", true);
+                    } else {
+                        Object bean = beanManage.getBean(clazz);
+                        result.put("haveBean", Objects.nonNull(bean));
+                    }
                     return result;
                 }).collect(Collectors.toList());
 
@@ -88,9 +100,31 @@ public class ProjectInfoService {
         return result;
     }
 
+    public List<Map<String, Object>> getResourceDir() {
+        try {
+            URL url = getEntranceUrl();
+            return ClassUtils.getDirMapDataByUrl(url);
+        } catch (URISyntaxException ignored) {
+        }
+        return Collections.emptyList();
+    }
+
     public List<MethodInfo> getClassAllMethods(String className) {
         Class<?> clazz = getClazz(className);
         return ClassUtils.getMethodsInfo(clazz);
+    }
+
+    private URL getEntranceUrl() {
+        List<Class<?>> classCache = Session.getClassCache();
+        Class<?> aClass = classCache.get(0);
+        try {
+            Enumeration<URL> resources = aClass.getClassLoader().getResources("");
+            if (resources.hasMoreElements()) {
+                return resources.nextElement();
+            }
+        } catch (IOException ignored) {
+        }
+        return null;
     }
 
     private Class<?> getClazz(String className) {
@@ -99,12 +133,36 @@ public class ProjectInfoService {
         return aClass.orElse(null);
     }
 
+    public String getResourceFileCode(String fileName) {
+        try {
+            URL url = getEntranceUrl();
+            System.out.println(fileName);
+            String urlFileCode = ClassUtils.getUrlFileCode(url, fileName);
+            if (Objects.isNull(urlFileCode)) {
+                return "not find";
+            }
+            return urlFileCode;
+        } catch (URISyntaxException ignored) {
+        }
+        return null;
+    }
+
+    public int saveResourceFileCode(String fileName, String code) {
+
+        try {
+            URL url = getEntranceUrl();
+            return ClassUtils.saveUrlFileCode(url, fileName, code);
+        } catch (URISyntaxException ignored) {
+        }
+        return -1;
+    }
+
     public void stop(String restore) {
         boolean restoreBool = Boolean.parseBoolean(restore);
         if (restoreBool) {
             hotUpdateService.resetClass();
         }
-        SumkServer.stop();
+        ContextManage.stop();
     }
 
 }

@@ -1,6 +1,6 @@
 package com.cx.mode;
 
-import org.yx.util.S;
+import com.cx.utils.BeanU;
 
 import java.util.Map;
 import java.util.Objects;
@@ -86,15 +86,15 @@ public class ClassInfo {
     private String classLoaderHash;
 
     public ClassInfo(Class<?> clazz) {
-        if (Objects.isNull(clazz)){
+        if (Objects.isNull(clazz)) {
             return;
         }
         initInfo(clazz);
     }
 
-    private void initInfo(Class<?> clazz){
-        ClassLoader loader  = clazz.getClassLoader();
-        if (Objects.nonNull(loader)){
+    private void initInfo(Class<?> clazz) {
+        ClassLoader loader = clazz.getClassLoader();
+        if (Objects.nonNull(loader)) {
             setClassLoad(loader.toString());
             setClassLoaderHash(Integer.toHexString(loader.hashCode()));
         }
@@ -106,11 +106,11 @@ public class ClassInfo {
         setLocalClass(clazz.isLocalClass());
         setName(clazz.getName());
         setSimpleName(clazz.getSimpleName());
-        setSuperClass(Objects.nonNull(clazz.getSuperclass()) ?clazz.getSuperclass().getName() : "无");
+        setSuperClass(Objects.nonNull(clazz.getSuperclass()) ? clazz.getSuperclass().getName() : "无");
     }
 
-    public Map<String, Object> toMap(){
-        return S.bean.beanToMap(this,false);
+    public Map<String, Object> toMap() throws IllegalAccessException {
+        return BeanU.beanToMap(this, false);
     }
 
     public String getName() {

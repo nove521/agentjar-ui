@@ -8,6 +8,7 @@ import SelectProject from '@/page/Index/SelectProject'
 import JvmInfo from '@/page/Index/JvmInfo'
 import FindClass from '@/page/Index/FindClass'
 import HotUpdate from '@/page/Index/HotUpdate'
+import ResourceDir from '@/page/Index/ResourceDir'
 
 Vue.use(Router)
 
@@ -34,6 +35,10 @@ const router = new Router({
                     path: '/HotUpdate',
                     name: 'HotUpdate',
                     component: HotUpdate
+                },{
+                    path: '/ResourceDir',
+                    name: 'ResourceDir',
+                    component: ResourceDir
                 }
             ]
         },

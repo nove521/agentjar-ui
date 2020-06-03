@@ -3,6 +3,7 @@ import Vue from 'vue'
 import System from './modules/system'
 import Project from './modules/project'
 import HotUpdate from './modules/hotUpdate'
+import ResourceDir from './modules/resourceDir'
 
 Vue.use(vuex)
 
@@ -19,12 +20,16 @@ export default new vuex.Store({
         CLASS_ALL_METHODS_URL: '/rest/get-class-all-methods',
         INVOKE_METHOD_URL: '/rest/invoke-method',
         ORNL_TEST_URL: '/rest/ognl-test',
+        RESOURCE_DIR_GET_URL: '/rest/get-resource-dir',
+        RESOURCE_FILE_CODE_GET_URL: '/rest/get-resource-file-code',
+        RESOURCE_FILE_SAVE_CODE_URL: '/rest/get-resource-file-save-code',
         LOGIN_URL: '/login'
     },
     modules: {
         System,
         Project,
-        HotUpdate
+        HotUpdate,
+        ResourceDir
     },
     mutations: {}
 })

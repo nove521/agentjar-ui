@@ -30,16 +30,16 @@ public class SystemController {
         } catch (JvmException e) {
             return ReultUtils.ERROR(e.getMessage());
         }
-        return ReultUtils.SUCCEED("启动成功");
+        return ReultUtils.SUCCEED_MSG("启动成功");
     }
 
 
     @Web(value = "/stop-project", cnName = "退出项目", requireLogin = true)
     public ResultObject<Map<String, String>> stop(@Param("是否还原更改") String restore) {
-        HttpU.sendAsync("http://127.0.0.1:18088/rest/project/stop",
+        HttpU.sendAsync("http://127.0.0.1:19998/project/stop",
                 new MyMap<String, String>()
                         .puti("restore", restore));
-        return ReultUtils.SUCCEED("退出成功");
+        return ReultUtils.SUCCEED_MSG("退出成功");
     }
 
 }
