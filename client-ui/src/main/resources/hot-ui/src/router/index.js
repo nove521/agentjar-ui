@@ -9,6 +9,7 @@ import JvmInfo from '@/page/Index/JvmInfo'
 import FindClass from '@/page/Index/FindClass'
 import HotUpdate from '@/page/Index/HotUpdate'
 import ResourceDir from '@/page/Index/ResourceDir'
+import Ognl from '@/page/Index/Ognl'
 
 Vue.use(Router)
 
@@ -27,6 +28,10 @@ const router = new Router({
                     path: '/JvmInfo',
                     name: 'JvmInfo',
                     component: JvmInfo
+                },{
+                    path: '/Ognl',
+                    name: 'Ognl',
+                    component: Ognl
                 },{
                     path: '/FindClass',
                     name: 'FindClass',

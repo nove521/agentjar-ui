@@ -22,8 +22,8 @@ public class VMutils {
     private static final Map<String, List<InnerObject>> jvmInfosMap = new ConcurrentHashMap<>();
 
     static {
-//        JAR_PATH = Objects.requireNonNull(VMutils.class.getClassLoader().getResource("agentjar-1.0.jar")).getPath().substring(1);
-        JAR_PATH = "D:/project/xuexi/TestHotUpdate/agentjar/target/agentjar-1.0.jar";
+        JAR_PATH = Objects.requireNonNull(VMutils.class.getClassLoader().getResource("agentjar-1.0.jar")).getPath().substring(1);
+//        JAR_PATH = "D:/project/xuexi/TestHotUpdate/agentjar/target/agentjar-1.0.jar";
     }
 
     public static int generatePort() {

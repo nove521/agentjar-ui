@@ -15,6 +15,8 @@
             <el-menu-item-group>
                 <el-menu-item index="2-1" :route="{ path: '/JvmInfo' }" :disabled="isCheckJvm === false">JVM信息
                 </el-menu-item>
+                <el-menu-item index="2-5" :route="{ path: '/Ognl' }" :disabled="isCheckJvm === false">运行ognl
+                </el-menu-item>
                 <el-menu-item index="2-2" :route="{ path: '/FindClass' }" :disabled="isCheckJvm === false">查找类
                 </el-menu-item>
                 <el-menu-item index="2-3" :route="{ path: '/HotUpdate' }" :disabled="isCheckJvm === false">热更新
