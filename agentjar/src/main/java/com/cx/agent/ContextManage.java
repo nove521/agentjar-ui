@@ -15,6 +15,10 @@ public class ContextManage {
 
     private static MyBeanFactory factory = null;
 
+    /**
+     * 启动主类
+     * @param options 配置项
+     */
     public static void start(JsonArray options) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("port", 19998);
