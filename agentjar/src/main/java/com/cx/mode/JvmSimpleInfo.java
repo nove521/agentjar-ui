@@ -7,6 +7,8 @@ import java.util.Map;
 
 /**
  * JVM 简单信息
+ * 充血模型
+ *
  */
 public class JvmSimpleInfo {
 
@@ -24,7 +26,7 @@ public class JvmSimpleInfo {
         RuntimeMXBean mxb = ManagementFactory.getRuntimeMXBean();
         name = mxb.getName();
         specName = mxb.getSpecName();
-        classPath = mxb.getClassPath(); // 卧槽，这里就可以获取到classPath
+        classPath = mxb.getClassPath();
         managementSpecVersion = mxb.getManagementSpecVersion();
         specVendor = mxb.getSpecVendor();
         startTime = new Date(mxb.getStartTime());
