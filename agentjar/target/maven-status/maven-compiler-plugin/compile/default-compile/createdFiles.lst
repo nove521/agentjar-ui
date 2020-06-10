@@ -4,6 +4,7 @@ com\cx\contentBean\BeanManage.class
 com\cx\server\service\OgnlService.class
 com\cx\mode\JvmSimpleInfo.class
 com\cx\agent\Session.class
+com\cx\server\web\handler\model\RequestDefine$ParamInfo.class
 com\cx\server\ann\Param.class
 com\cx\server\service\HotUpdateService.class
 com\cx\utils\ClassUtils.class

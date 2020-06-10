@@ -22,15 +22,13 @@ public abstract class MyAbstractHandler extends AbstractHandler {
 
     public List<Object> getParamsObject(HttpServletRequest httpServletRequest) {
         List<Object> paramsObj = new ArrayList<>();
-        Map<String, Parameter> paramMap = this.requestDefine.getParamMap();
-        Set<String> paramNames = paramMap.keySet();
-        for (String name : paramNames) {
-            Parameter parameter = paramMap.get(name);
-            String paramsStr = httpServletRequest.getParameter(name);
+        List<RequestDefine.ParamInfo> paramList = this.requestDefine.getParamList();
+        for (RequestDefine.ParamInfo paramInfo : paramList) {
+            Parameter parameter = paramInfo.getParameter();
+            String paramsStr = httpServletRequest.getParameter(paramInfo.getLable());
             Object obj = StrUtils.changeTo(paramsStr, parameter.getType());
             paramsObj.add(obj);
         }
-        Collections.reverse(paramsObj);
         return paramsObj;
     }
 

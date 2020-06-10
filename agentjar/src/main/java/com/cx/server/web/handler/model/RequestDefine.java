@@ -10,7 +10,7 @@ import java.util.*;
 
 public class RequestDefine {
 
-    private Map<String, Parameter> paramMap;
+    private List<ParamInfo> paramList;
 
     private Class<?> returnType;
 
@@ -21,7 +21,7 @@ public class RequestDefine {
     public RequestDefine(Method method, Object object) {
         this.method = method;
         this.object = object;
-        this.paramMap = new HashMap<>();
+        this.paramList = new ArrayList<>();
         filterParams(method.getParameters());
         this.returnType = method.getReturnType();
     }
@@ -31,17 +31,17 @@ public class RequestDefine {
             Annotation getAnn = ClassUtils.equalsGetAnn(parameter.getAnnotations(), Param.class);
             if (Objects.nonNull(getAnn)) {
                 Param param = (Param) getAnn;
-                paramMap.put(param.value(), parameter);
+                paramList.add(new ParamInfo(param.value(), parameter));
             }
         }
     }
 
-    public Map<String, Parameter> getParamMap() {
-        return paramMap;
+    public List<ParamInfo> getParamList() {
+        return paramList;
     }
 
-    public void setParamMap(Map<String, Parameter> paramMap) {
-        this.paramMap = paramMap;
+    public void setParamList(List<ParamInfo> paramList) {
+        this.paramList = paramList;
     }
 
     public Method getMethod() {
@@ -66,5 +66,23 @@ public class RequestDefine {
 
     public void setReturnType(Class<?> returnType) {
         this.returnType = returnType;
+    }
+
+    public static class ParamInfo {
+        private String lable;
+        private Parameter parameter;
+
+        public ParamInfo(String lable, Parameter parameter) {
+            this.lable = lable;
+            this.parameter = parameter;
+        }
+
+        public String getLable() {
+            return lable;
+        }
+
+        public Parameter getParameter() {
+            return parameter;
+        }
     }
 }

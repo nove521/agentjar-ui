@@ -70,8 +70,6 @@ public class ProjectInfoWeb {
 
     @Http("/project/resource/file/saveCode")
     public int saveResourceFileCode(@Param("fileName") String fileName, @Param("code") String code) {
-        System.out.println("filename=" + fileName);
-        System.out.println("code=" + code);
-        return resourceService.saveResourceFileCode(code, fileName).getCode();
+        return resourceService.saveResourceFileCode(fileName, code).getCode();
     }
 }
