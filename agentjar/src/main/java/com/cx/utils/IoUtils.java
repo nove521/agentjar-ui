@@ -7,10 +7,10 @@ import java.util.Objects;
 public class IoUtils {
 
     public static String inputStreamToString(File file) throws IOException {
-        return inputStreamToString(new FileInputStream(file));
+        return inputStreamToString(new FileInputStream(file), true);
     }
 
-    public static String inputStreamToString(InputStream inputStream) throws IOException {
+    public static String inputStreamToString(InputStream inputStream, boolean close) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
         while (inputStream.read(buf) >= 0) {
@@ -18,10 +18,10 @@ public class IoUtils {
         }
         String result = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
         outputStream.close();
-        inputStream.close();
-
+        if (close) {
+            inputStream.close();
+        }
         result = result.replace("\u0000", "");
-
         return result;
     }
 
@@ -45,13 +45,13 @@ public class IoUtils {
     }
 
 
-    public static void inputStreamToOutputStream(InputStream inputStream, OutputStream outputStream,boolean close) throws IOException {
+    public static void inputStreamToOutputStream(InputStream inputStream, OutputStream outputStream, boolean close) throws IOException {
         byte[] buf = new byte[1024];
         int len;
         while ((len = inputStream.read(buf)) >= 0) {
             outputStream.write(buf, 0, len);
         }
-        if (close){
+        if (close) {
             outputStream.close();
             inputStream.close();
         }
@@ -61,7 +61,7 @@ public class IoUtils {
 
         String dirPath = path.substring(0, path.lastIndexOf("\\"));
         File file = new File(dirPath);
-        if (!file.exists()){
+        if (!file.exists()) {
             file.mkdirs();
         }
 
@@ -90,7 +90,7 @@ public class IoUtils {
         try {
             FileInputStream inputStream = new FileInputStream(file);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            inputStreamToOutputStream(inputStream, outputStream,true);
+            inputStreamToOutputStream(inputStream, outputStream, true);
             return outputStream.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
@@ -102,6 +102,7 @@ public class IoUtils {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream outputStream = new PrintStream(out);
         e.printStackTrace(outputStream);
+        outputStream.close();
         return out.toString();
     }
 

@@ -12,6 +12,7 @@ com\cx\javaCompiler\ClassByteSource.class
 com\cx\javaCompiler\MyJavaFileManage.class
 com\cx\server\ann\Obj.class
 com\cx\server\ann\Http.class
+com\cx\server\service\ResourceService.class
 com\cx\javaCompiler\Decompiler.class
 com\cx\contentBean\factory\GetBeanFactory.class
 com\cx\server\myBeanMnage\MyBeanContent.class
@@ -46,5 +47,6 @@ com\cx\test\SimpleClass.class
 com\cx\test\HelloWorldHandle.class
 com\cx\agent\ContextManage.class
 com\cx\test\ServerTest.class
+com\cx\enums\StatusSys.class
 com\cx\javaCompiler\FindClassLoadPackage.class
 org\yx\db\mapper\DBPlugin.class

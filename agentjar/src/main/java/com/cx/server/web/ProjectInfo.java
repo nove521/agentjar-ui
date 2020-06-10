@@ -6,6 +6,7 @@ import com.cx.server.ann.Join;
 import com.cx.server.ann.Obj;
 import com.cx.server.ann.Param;
 import com.cx.server.service.ProjectInfoService;
+import com.cx.server.service.ResourceService;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,9 @@ public class ProjectInfo {
 
     @Join
     private ProjectInfoService projectInfoService;
+
+    @Join
+    private ResourceService resourceService;
 
     /**
      * 获取所有的类
@@ -51,7 +55,7 @@ public class ProjectInfo {
 
     @Http("/project/resource/dir")
     public List<Map<String, Object>> getResourceDir() {
-        return projectInfoService.getResourceDir();
+        return resourceService.getResourceDir();
     }
 
     @Http("/project/stop")
@@ -61,13 +65,13 @@ public class ProjectInfo {
 
     @Http("/project/resource/file/code")
     public String getresourceFileCode(@Param("fileName") String fileName) {
-        return projectInfoService.getResourceFileCode(fileName);
+        return resourceService.getResourceFileCode(fileName);
     }
 
     @Http("/project/resource/file/saveCode")
     public int saveResourceFileCode(@Param("fileName") String fileName, @Param("code") String code) {
         System.out.println("filename=" + fileName);
         System.out.println("code=" + code);
-        return projectInfoService.saveResourceFileCode(code,fileName);
+        return resourceService.saveResourceFileCode(code, fileName).getCode();
     }
 }

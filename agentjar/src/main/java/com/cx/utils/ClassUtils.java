@@ -1,5 +1,6 @@
 package com.cx.utils;
 
+import com.cx.enums.StatusSys;
 import com.cx.mode.MethodInfo;
 import com.cx.server.ann.Http;
 import com.cx.server.ann.Join;
@@ -20,6 +21,8 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ClassUtils {
+
+    public static final String CLASS_SUFFIX = ".class";
 
     /**
      * 翻译Modifier值
@@ -149,24 +152,22 @@ public class ClassUtils {
 
         className = className.replace(".", "/");
 
-        URL resource = objClazz.getClassLoader().getResource(className + ".class");
-
+        URL resource = objClazz.getClassLoader().getResource(className + CLASS_SUFFIX);
         if (Objects.isNull(resource)) {
             return null;
         }
-
-        String path = resource.toString().replaceAll("file:", "");
-        return path.replaceAll("jar:", "");
+        String path = resource.toString().replaceAll(FileUtils.FILE_PREFIX, "");
+        return path.replaceAll(JarTool.JAR_PREFIX, "");
     }
 
     public static byte[] getByteByClass(Class<?> clazz) {
         try {
-            InputStream stream = clazz.getClassLoader().getResourceAsStream(clazz.getName().replace(".", "/") + ".class");
+            InputStream stream = clazz.getClassLoader().getResourceAsStream(clazz.getName().replace(".", "/") + CLASS_SUFFIX);
             if (Objects.isNull(stream)) {
                 return null;
             }
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            IoUtils.inputStreamToOutputStream(stream, outputStream,true);
+            IoUtils.inputStreamToOutputStream(stream, outputStream, true);
             return outputStream.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
@@ -186,9 +187,9 @@ public class ClassUtils {
 
     public static String getSimplePath(String name) {
         int index = name.indexOf("$");
-        String path = name.substring(0, index < 0 ? name.length() - 1 : index);
+        String path = name.substring(0, index < 0 ? name.length() : index);
         path = path.replace(".", "/");
-        return path + ".class";
+        return path + CLASS_SUFFIX;
     }
 
     public static List<Class<?>> getClassByPackNames(List<String> packNames) throws ClassNotFoundException {
@@ -313,7 +314,7 @@ public class ClassUtils {
 
     public static List<Map<String, Object>> getDirMapDataByUrl(URL url) throws URISyntaxException {
         String path = url.toString();
-        if (path.matches("^.*\\.jar!/.*$")) {
+        if (path.matches(JarTool.IS_JAR_REX)) {
             List<String> pathByJar = FileUtils.getDirAllResourceByJar(url.toURI());
             return generateDirDate(pathByJar);
         } else {
@@ -328,21 +329,21 @@ public class ClassUtils {
         }
     }
 
-    public static String getUrlFileCode(URL url, String fileName) throws URISyntaxException {
+    public static String getUrlFileCode(URL url, String fileName) throws URISyntaxException, IOException {
         String path = url.toString();
-        if (path.matches("^.*\\.jar!/.*$")) {
+        if (path.matches(JarTool.IS_JAR_REX)) {
             return FileUtils.getJarFileCode(url.toURI(), fileName);
         } else {
             return FileUtils.getFileCode(url.toURI(), fileName);
         }
     }
 
-    public static int saveUrlFileCode(URL url, String fileName, String code) throws URISyntaxException {
+    public static StatusSys editUrlFileCode(URL url, String fileName, String code, boolean isBak) throws URISyntaxException {
         String path = url.toString();
-        if (path.matches("^.*\\.jar!/.*$")) {
-            return FileUtils.saveJarFileCode(url.toURI(), fileName, code);
+        if (path.matches(JarTool.IS_JAR_REX)) {
+            return FileUtils.editJarFileCode(url.toURI(), fileName, code);
         } else {
-            return FileUtils.saveFileCode(url.toURI(), fileName, code);
+            return FileUtils.editFileCode(url.toURI(), fileName, code, isBak);
         }
     }
 

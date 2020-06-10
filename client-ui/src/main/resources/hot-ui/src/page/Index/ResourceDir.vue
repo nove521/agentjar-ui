@@ -81,7 +81,7 @@
                 this.code = this.cm.getValue()
                 if (this.currentFilePath !== '' && this.currentFilePath !== undefined) {
                     this.saveFileCode({fileName: this.currentFilePath, code: this.code}).then(res => {
-                        if (res.data > 0) {
+                        if (res.data >= 0) {
                             Message(SUCCEED("保存成功"));
                         } else {
                             Message(REQUEST_ERROR("保存失败"));

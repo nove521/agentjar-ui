@@ -82,16 +82,12 @@ public class ProjectInfoService {
         String javaCode = Session.getCacheNewClassByte().get(className);
 
         if (Objects.isNull(javaCode)) {
-            String path = ClassUtils.getSimplePath(className);
+            String path = ClassUtils.getPathByClassName(Session.getClassCache(), className);
             javaCode = Decompiler.decompile(path, null);
             if (StrUtils.isBlank(javaCode)) {
-                path = ClassUtils.getPathByClassName(Session.getClassCache(), className);
-                javaCode = Decompiler.decompile(path, null);
-                if (StrUtils.isBlank(javaCode)) {
-                    result.put("code", "not Find");
-                    result.put("name", className);
-                    return result;
-                }
+                result.put("code", "not Find");
+                result.put("name", className);
+                return result;
             }
         }
 
@@ -100,32 +96,12 @@ public class ProjectInfoService {
         return result;
     }
 
-    public List<Map<String, Object>> getResourceDir() {
-        try {
-            URL url = getEntranceUrl();
-            return ClassUtils.getDirMapDataByUrl(url);
-        } catch (URISyntaxException ignored) {
-        }
-        return Collections.emptyList();
-    }
-
     public List<MethodInfo> getClassAllMethods(String className) {
         Class<?> clazz = getClazz(className);
         return ClassUtils.getMethodsInfo(clazz);
     }
 
-    private URL getEntranceUrl() {
-        List<Class<?>> classCache = Session.getClassCache();
-        Class<?> aClass = classCache.get(0);
-        try {
-            Enumeration<URL> resources = aClass.getClassLoader().getResources("");
-            if (resources.hasMoreElements()) {
-                return resources.nextElement();
-            }
-        } catch (IOException ignored) {
-        }
-        return null;
-    }
+
 
     private Class<?> getClazz(String className) {
         List<Class<?>> classList = Session.getClassCache();
@@ -133,29 +109,6 @@ public class ProjectInfoService {
         return aClass.orElse(null);
     }
 
-    public String getResourceFileCode(String fileName) {
-        try {
-            URL url = getEntranceUrl();
-            System.out.println(fileName);
-            String urlFileCode = ClassUtils.getUrlFileCode(url, fileName);
-            if (Objects.isNull(urlFileCode)) {
-                return "not find";
-            }
-            return urlFileCode;
-        } catch (URISyntaxException ignored) {
-        }
-        return null;
-    }
-
-    public int saveResourceFileCode(String fileName, String code) {
-
-        try {
-            URL url = getEntranceUrl();
-            return ClassUtils.saveUrlFileCode(url, fileName, code);
-        } catch (URISyntaxException ignored) {
-        }
-        return -1;
-    }
 
     public void stop(String restore) {
         boolean restoreBool = Boolean.parseBoolean(restore);

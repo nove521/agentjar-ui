@@ -1,9 +1,15 @@
 package com.cx.javaCompiler;
 
+import com.cx.utils.FileUtils;
+import com.cx.utils.JarTool;
 import com.cx.utils.StrUtils;
 import org.benf.cfr.reader.api.CfrDriver;
+import org.benf.cfr.reader.api.ClassFileSource;
 import org.benf.cfr.reader.api.OutputSinkFactory;
+import org.benf.cfr.reader.state.ClassFileSourceImpl;
+import org.benf.cfr.reader.util.getopt.OptionsImpl;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -51,17 +57,30 @@ public class Decompiler {
             options.put("methodname", methodName);
         }
 
-        if (classFilePath.contains(".jar")) {
-            int index = classFilePath.indexOf(".jar!/");
-            classFilePath = classFilePath.substring(index + 6);
+        CfrDriver.Builder builder = new CfrDriver.Builder();
+
+        if (classFilePath.contains(".jar!/")) {
+
+            String jarPath = classFilePath.substring(0, classFilePath.indexOf(JarTool.JAR_SUFFIX) + 4);
+            classFilePath = classFilePath.substring(classFilePath.indexOf(JarTool.JAR_SUFFIX) + 6);
+            ClassFileSource classFileSource = new ClassFileSourceImpl(new OptionsImpl(options));
+
+            classFilePath = classFilePath.replace("!","");
+
+            System.out.println(jarPath);
+            System.out.println(classFilePath);
+
+            classFileSource.addJar(jarPath);
+
+            builder.withClassFileSource(classFileSource);
         }
 
-        CfrDriver driver = new CfrDriver.Builder().withOptions(options).withOutputSink(mySink).build();
-        List<String> toAnalyse = new ArrayList<String>();
+        CfrDriver driver = builder.withOptions(options).withOutputSink(mySink).build();
+        List<String> toAnalyse = new ArrayList<>();
         toAnalyse.add(classFilePath);
         driver.analyse(toAnalyse);
 
-        if ("null".equals(result.toString())){
+        if ("null".equals(result.toString())) {
             return null;
         }
 
@@ -74,5 +93,11 @@ public class Decompiler {
 //        String decompile = decompile("org/yx/http/kit/HttpTypePredicate.class", null);
 //        System.out.println(decompile);
         System.out.println(Decompiler.class.getProtectionDomain().getCodeSource().getLocation());
+//        String path = "/D:/project/xuexi/TestHotUpdate/clientweb/target/classes/agentjar-1.0.jar!/org/eclipse/jetty/server/HttpChannel.class";
+        String path = "file:/D:/project/simple/target/simple-0.0.1.jar!/BOOT-INF/classes/com/example/simple/controller/HelloController.class";
+
+//        String code = decompile("/D:/project/simple/target/simple-0.0.1.jar!/BOOT-INF/classes!/com/example/simple/controller/HelloController.class",null);
+        String code = decompile(path, null);
+        System.out.println(code);
     }
 }
