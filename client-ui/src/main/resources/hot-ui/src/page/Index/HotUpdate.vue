@@ -1,13 +1,13 @@
 <template>
     <div class="content">
         <div>
-            <el-input class="serche" v-model="name" placeholder="请输入类名"></el-input>
-            <el-button class="update" type="primary">反编译</el-button>
+            <el-input class="serche" v-model="name" placeholder="请输入完整类名"/>
+            <el-button class="update" type="primary" plain >查找</el-button>
+            <el-button class="update" type="success"  @click="iHotUpdate">更新</el-button>
         </div>
         <div>
-            <textarea ref="mycode" class="codesql" v-model="code" ></textarea>
+            <textarea ref="mycode" class="codesql" v-model="code"/>
         </div>
-        <el-button class="update" type="primary" @click="iHotUpdate">更新</el-button>
     </div>
 </template>
 

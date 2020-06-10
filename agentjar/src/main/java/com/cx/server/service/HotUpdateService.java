@@ -1,24 +1,16 @@
 package com.cx.server.service;
 
 import com.cx.agent.Session;
-import com.cx.enums.SystemMessage;
-import com.cx.javaCompiler.MyCompiler;
 import com.cx.contentBean.BeanManage;
 import com.cx.contentBean.factory.GetBeanFactory;
-import com.cx.ognl.OgnlHolder;
+import com.cx.enums.SystemMessage;
+import com.cx.javaCompiler.MyCompiler;
 import com.cx.server.ann.Obj;
 import com.cx.utils.ClassUtils;
 import com.cx.utils.IoUtils;
 import com.cx.utils.StrUtils;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
-import ognl.OgnlException;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.lang.instrument.ClassDefinition;
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
@@ -115,20 +107,10 @@ public class HotUpdateService {
         newClassByte.put(className, javaCode);
     }
 
-    public String ognltest() {
-
-        try {
-            return OgnlHolder.sayHello();
-        } catch (OgnlException e) {
-            e.printStackTrace();
-            return "no";
-        }
-    }
-
     @SuppressWarnings("unchecked")
     public Object invoke(String className, String methodName, String paramsJson) {
         BeanManage beanManage = GetBeanFactory.generateBeanManage();
-        if (Objects.isNull(beanManage)){
+        if (Objects.isNull(beanManage)) {
             return SystemMessage.NO_FOUND_BEAN.getVal();
         }
         System.out.println("------+-------");

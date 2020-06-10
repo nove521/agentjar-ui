@@ -8,7 +8,6 @@ import org.yx.annotation.Bean;
 import org.yx.annotation.Param;
 import org.yx.annotation.http.Web;
 
-import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -26,20 +25,9 @@ public class HotUpdateController {
                 new MyMap<String, String>()
                         .puti("className", className)
                         .puti("javaCode", javaCode));
-        return send.<ResultObject<String>>
-                map(ReultUtils::SUCCEED).
+        return send.map(ReultUtils::SUCCEED).
                 orElseGet(ReultUtils::ERROR_JVM_COMPLIER_FAIL);
 
-    }
-
-    @Web(value = "/ognl-test", requireLogin = true)
-    public ResultObject<Object> ognlTest() {
-        Optional<Object> send = HttpU.send("http://127.0.0.1:19998/hotupdate/ognltest",
-                Object.class, Collections.emptyMap());
-
-        return send.<ResultObject<Object>>
-                map(ReultUtils::SUCCEED).
-                orElseGet(ReultUtils::ERROR_JVM_COMPLIER_FAIL);
     }
 
     @Web("/invoke-method")
@@ -51,8 +39,7 @@ public class HotUpdateController {
                         .puti("methodName", methodName)
                         .puti("paramsJson", paramsJson));
 
-        return send.<ResultObject<String>>
-                map(ReultUtils::SUCCEED).
+        return send.map(ReultUtils::SUCCEED).
                 orElseGet(ReultUtils::SUCCEED);
     }
 }

@@ -1,5 +1,6 @@
 package com.cx.utils;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 public class MyMap<K,V> extends HashMap<K,V>{
@@ -12,4 +13,5 @@ public class MyMap<K,V> extends HashMap<K,V>{
         super.put(key,val);
         return this;
     }
+
 }

@@ -3,7 +3,7 @@
         <Head title="查找类"
               :showF5="true"
               @f5="shua"
-        ></Head>
+        />
         <div style="display: flex; width: 100%; padding: 5px 0 25px 0;color: #777777">
             <div style="width: 30%">简称</div>
             <div style="width: 30%;">完整路径</div>
@@ -11,7 +11,7 @@
                 <div class="input-i">
                     <i class="el-icon-aim" style="margin-right: 10px; font-size: 28px; cursor: pointer"
                        @click="check"
-                    ></i>
+                    />
                     <input class="search"
                            ref="inputSearch"
                            @keyup.enter="searchFun"

@@ -90,7 +90,7 @@
                 let className = this.className
                 this.invokeMethod({className, methodName: name, paramsJson}).then(res => {
                     let data = res.data
-                    this.textarea = JSON.stringify(data)
+                    this.textarea = data
                 })
             },
             params(val) {
