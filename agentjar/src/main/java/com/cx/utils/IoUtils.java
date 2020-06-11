@@ -13,8 +13,9 @@ public class IoUtils {
     public static String inputStreamToString(InputStream inputStream, boolean close) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
-        while (inputStream.read(buf) >= 0) {
-            outputStream.write(buf);
+        int n;
+        while ((n = inputStream.read(buf, 0, buf.length)) >= 0) {
+            outputStream.write(buf, 0, n);
         }
         String result = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
         outputStream.close();
@@ -29,8 +30,9 @@ public class IoUtils {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         byte[] buf = new byte[1024];
         try {
-            while (inputStream.read(buf) >= 0) {
-                outputStream.write(buf);
+            int n;
+            while ((n = inputStream.read(buf, 0, buf.length)) >= 0) {
+                outputStream.write(buf, 0, n);
             }
             return outputStream.toByteArray();
         } catch (IOException ignored) {
